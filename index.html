@@ -11,13 +11,7 @@
 body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
 .bbg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
 .fb{position:absolute;border-radius:50%;animation:floatUp linear infinite;opacity:0;}
-@keyframes floatUp{
-  0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}
-  10%{opacity:.55;}
-  50%{transform:translateY(-45vh) translateX(var(--drift)) scale(1.05);}
-  90%{opacity:.25;}
-  100%{transform:translateY(-100vh) translateX(var(--drift)) scale(.7);opacity:0;}
-}
+@keyframes floatUp{0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}10%{opacity:.55;}50%{transform:translateY(-45vh) translateX(var(--drift)) scale(1.05);}90%{opacity:.25;}100%{transform:translateY(-100vh) translateX(var(--drift)) scale(.7);opacity:0;}}
 .wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:1.5rem 1rem 5rem;}
 .header{text-align:center;margin-bottom:1.4rem;}
 .pingu-wrap{position:relative;width:100px;height:100px;margin:0 auto .8rem;}
@@ -64,11 +58,7 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .bnext{background:linear-gradient(135deg,var(--blush),var(--blush2));color:white;box-shadow:0 4px 16px rgba(201,147,140,.4);}
 .bnext:disabled{opacity:.38;cursor:not-allowed;}
 .start-cta{animation:ctaPulse 1.9s ease-in-out infinite;}
-@keyframes ctaPulse{
-  0%,100%{transform:translateY(0) scale(1);}
-  45%{transform:translateY(-2px) scale(1.02);}
-  70%{transform:translateY(0) scale(1);}
-}
+@keyframes ctaPulse{0%,100%{transform:translateY(0) scale(1);}45%{transform:translateY(-2px) scale(1.02);}70%{transform:translateY(0) scale(1);}}
 .rcard,.nmcard{background:var(--card);border:1.5px solid var(--pink3);border-radius:24px;padding:2rem 1.5rem;text-align:center;box-shadow:0 6px 28px var(--shadow);}
 .rcard{border:3px solid var(--blush);box-shadow:0 12px 40px rgba(201,147,140,.35),0 0 0 6px rgba(232,196,190,.35);position:relative;overflow:hidden;animation:resultPop .9s ease both;}
 .rcard::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,#e8c4be,#c9938c,#d4a5a0);}
@@ -81,7 +71,7 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .nmcard p{font-size:.86rem;color:var(--muted);line-height:1.7;}
 .brst{width:100%;padding:.9rem;border-radius:14px;border:2px solid var(--blush);background:transparent;color:var(--blush);font-size:.95rem;font-weight:800;cursor:pointer;margin-top:1rem;}
 .saving{text-align:center;font-size:.76rem;font-weight:700;color:var(--muted);margin-top:.6rem;min-height:1.1rem;}
-.saving.ok{color:var(--green);} .saving.err{color:#c07070;}
+.saving.ok{color:var(--green);}.saving.err{color:#c07070;}
 </style>
 </head>
 <body>
@@ -110,77 +100,47 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
   </div>
   <div id="app"></div>
 </div>
-
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU3BnIYnZCK9Di0F9qUMjYNZge0eYCSLERJ6kkVvpbFo4IAmSJ9f3eCAEIWeIdvJRJ/exec';
-const PRIORITY = ['韓系小奶狗', '潛力校草理工男', '油頭精壯凹豆男'];
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz8JN6U15RPduC1IC34doRpMO72R64Mqhx43-N46PsTBnQs_NbGgjRPPgRdMmRSgILEBA/exec';
+const PRIORITY=['韓系小奶狗','潛力校草理工男','油頭精壯凹豆男'];
 
-// 這些題目不參與配對比對，純粹記錄用
-const SKIP_MATCH_KEYS = ['我最驕傲的地方', '最引以為傲的兩個特色'];
+let QS=[],GUYS=[],qi=0;
+const ans={};
+let done=false,winner=null,started=false,pendingSectionIntro='';
+const app=document.getElementById('app');
 
-let QS = [];
-let GUYS = [];
-let qi = 0;
-const ans = {};
-let done = false;
-let winner = null;
-let started = false;
-let pendingSectionIntro = '';
-
-const app = document.getElementById('app');
-
-(function initBubbles(){
-  const bg = document.getElementById('bbg');
-  if (!bg) return;
-  const colors = ['rgba(212,165,160,0.30)','rgba(232,196,190,0.28)','rgba(196,184,212,0.24)','rgba(242,219,215,0.35)'];
-  for (let i = 0; i < 26; i++) {
-    const b = document.createElement('div');
-    b.className = 'fb';
-    const sz = 10 + Math.random() * 30;
-    const dur = 9 + Math.random() * 14;
-    const delay = Math.random() * 12;
-    const drift = (Math.random() - 0.5) * 90;
-    b.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;bottom:-'+sz+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';--drift:'+drift+'px;animation-duration:'+dur+'s;animation-delay:'+delay+'s;border:1px solid rgba(255,255,255,.35);';
+(function(){
+  const bg=document.getElementById('bbg');
+  if(!bg)return;
+  const colors=['rgba(212,165,160,0.30)','rgba(232,196,190,0.28)','rgba(196,184,212,0.24)','rgba(242,219,215,0.35)'];
+  for(let i=0;i<26;i++){
+    const b=document.createElement('div');b.className='fb';
+    const sz=10+Math.random()*30,dur=9+Math.random()*14,delay=Math.random()*12,drift=(Math.random()-.5)*90;
+    b.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;bottom:-'+sz+'px;background:'+colors[Math.floor(Math.random()*colors.length)]+';--drift:'+drift+'px;animation-duration:'+dur+'s;animation-delay:'+delay+'s;border:1px solid rgba(255,255,255,.35);';
     bg.appendChild(b);
   }
 })();
 
-function esc(v){
-  return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-}
-function normalize(v){
-  return String(v==null?'':v).replace(/[\s\u3000]/g,'').toLowerCase();
-}
-function showLoading(){
-  app.innerHTML='<div class="loading"><div class="spin"></div><p>正在載入題目中…</p></div>';
-}
-function showError(msg){
-  app.innerHTML='<div class="err-card"><p>😟 '+esc(msg)+'</p><button class="btn-retry" onclick="boot()">重新載入</button></div>';
-}
+function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function normalize(v){return String(v==null?'':v).replace(/[\s\u3000]/g,'').toLowerCase();}
+function showLoading(){app.innerHTML='<div class="loading"><div class="spin"></div><p>正在載入題目中…</p></div>';}
+function showError(msg){app.innerHTML='<div class="err-card"><p>😟 '+esc(msg)+'</p><button class="btn-retry" onclick="boot()">重新載入</button></div>';}
 
 function boot(){
   showLoading();
-  const cb='_quiz_'+Date.now();
-  const tag=document.createElement('script');
+  const cb='_quiz_'+Date.now(),tag=document.createElement('script');
   let loaded=false;
-  const timeout=setTimeout(function(){
-    if(loaded)return; loaded=true; cleanup();
-    showError('載入逾時，請確認 Apps Script 已部署且可公開存取');
-  },10000);
+  const timeout=setTimeout(function(){if(loaded)return;loaded=true;cleanup();showError('載入逾時');},10000);
   function cleanup(){try{delete window[cb];}catch(e){}try{document.head.removeChild(tag);}catch(e){}}
   window[cb]=function(data){
-    if(loaded)return;
-    loaded=true; clearTimeout(timeout); cleanup();
+    if(loaded)return;loaded=true;clearTimeout(timeout);cleanup();
     if(!data||data.error){showError(data&&data.error?data.error:'讀取資料失敗');return;}
     GUYS=Array.isArray(data.guys)?data.guys:[];
     QS=Array.isArray(data.questions)?data.questions:[];
-    if(!QS.length||QS.length<=2){showError('題目載入異常：目前只有基本題，請檢查答案分頁');return;}
+    if(!QS.length||QS.length<=2){showError('題目載入異常');return;}
     render();
   };
-  tag.onerror=function(){
-    if(loaded)return; loaded=true; clearTimeout(timeout); cleanup();
-    showError('無法連到 Apps Script，請檢查 SCRIPT_URL');
-  };
+  tag.onerror=function(){if(loaded)return;loaded=true;clearTimeout(timeout);cleanup();showError('無法連到 Apps Script');};
   tag.src=SCRIPT_URL+'?callback='+cb+'&t='+Date.now();
   document.head.appendChild(tag);
 }
@@ -193,26 +153,13 @@ function render(){
 }
 
 function renderIntro(){
-  app.innerHTML=
-    '<div class="intro">'+
-      '<div class="intro-title">開始前先看看題目分欄 ✨</div>'+
-      '<div class="intro-grid">'+
-        '<div class="intro-card"><div class="k">關於我</div><div class="d">前半段會了解你的基本特質與習慣。</div></div>'+
-        '<div class="intro-card"><div class="k">關於你喜歡的男生</div><div class="d">後半段會了解你對理想對象的偏好。</div></div>'+
-      '</div>'+
-      '<button class="btn bnext start-cta" id="startBtn" style="width:100%">開始作答</button>'+
-    '</div>';
+  app.innerHTML='<div class="intro"><div class="intro-title">開始前先看看題目分欄 ✨</div><div class="intro-grid"><div class="intro-card"><div class="k">關於我</div><div class="d">前半段會了解你的基本特質與習慣。</div></div><div class="intro-card"><div class="k">關於你喜歡的男生</div><div class="d">後半段會了解你對理想對象的偏好。</div></div></div><button class="btn bnext start-cta" id="startBtn" style="width:100%">開始作答</button></div>';
   document.getElementById('startBtn').onclick=function(){started=true;render();};
 }
 
 function renderSectionIntro(section){
   const msg=section==='關於你喜歡的男生'?'接下來會進入你對理想對象偏好的題目。':'接下來先了解你的個人特質與習慣。';
-  app.innerHTML=
-    '<div class="intro">'+
-      '<div class="intro-title">下一段：'+esc(section)+'</div>'+
-      '<div class="intro-card"><div class="d">'+esc(msg)+'</div></div>'+
-      '<button class="btn bnext start-cta" id="sectionBtn" style="width:100%;margin-top:.85rem">繼續作答</button>'+
-    '</div>';
+  app.innerHTML='<div class="intro"><div class="intro-title">下一段：'+esc(section)+'</div><div class="intro-card"><div class="d">'+esc(msg)+'</div></div><button class="btn bnext start-cta" id="sectionBtn" style="width:100%;margin-top:.85rem">繼續作答</button></div>';
   document.getElementById('sectionBtn').onclick=function(){pendingSectionIntro='';render();};
 }
 
@@ -239,23 +186,12 @@ function renderQ(){
   }
 
   app.innerHTML=
-    '<div class="prog">'+
-      '<div class="prog-meta"><span>第 '+(qi+1)+' 題 / 共 '+QS.length+' 題</span><span>'+(q.scorable?'⭐ 計分':'🌸 基本資料')+'</span></div>'+
-      '<div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div>'+
-    '</div>'+
-    '<div class="qcard">'+
-      '<div class="qsec">✦ '+esc(section)+'</div>'+
-      '<span class="qnum">Q'+String(qi+1).padStart(2,'0')+'</span>'+
-      '<div class="qtxt">'+esc(q.label)+'</div>'+
-      body+
-    '</div>'+
-    '<div class="nav">'+
-      (qi>0?'<button class="btn bprev" id="btnPrev">← 上一題</button>':'<div></div>')+
-      '<button class="btn bnext" id="btnNext" '+(hasAns?'':'disabled')+'>'+(isLast?'查看結果':'下一題 →')+'</button>'+
-    '</div>';
+    '<div class="prog"><div class="prog-meta"><span>第 '+(qi+1)+' 題 / 共 '+QS.length+' 題</span><span>'+(q.scorable?'⭐ 計分':'🌸 基本資料')+'</span></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div></div>'+
+    '<div class="qcard"><div class="qsec">✦ '+esc(section)+'</div><span class="qnum">Q'+String(qi+1).padStart(2,'0')+'</span><div class="qtxt">'+esc(q.label)+'</div>'+body+'</div>'+
+    '<div class="nav">'+(qi>0?'<button class="btn bprev" id="btnPrev">← 上一題</button>':'<div></div>')+
+    '<button class="btn bnext" id="btnNext" '+(hasAns?'':'disabled')+'>'+(isLast?'查看結果':'下一題 →')+'</button></div>';
 
-  const btnPrev=document.getElementById('btnPrev');
-  const btnNext=document.getElementById('btnNext');
+  const btnPrev=document.getElementById('btnPrev'),btnNext=document.getElementById('btnNext');
   if(btnPrev)btnPrev.onclick=prev;
   btnNext.onclick=next;
 
@@ -265,16 +201,11 @@ function renderQ(){
         const idx=Number(btn.getAttribute('data-i'));
         if(q.type==='multi'){
           if(!Array.isArray(ans[q.id]))ans[q.id]=[];
-          const selected=ans[q.id];
-          const item=q.opts[idx];
-          const pos=selected.indexOf(item);
-          if(pos>=0)selected.splice(pos,1);
-          else{
-            if(selected.length>=(q.maxSelect||1))selected.shift();
-            selected.push(item);
-          }
-          app.querySelectorAll('.opt').forEach(function(el,j){el.classList.toggle('sel',selected.indexOf(q.opts[j])!==-1);});
-          btnNext.disabled=selected.length===0;
+          const sel=ans[q.id],item=q.opts[idx],pos=sel.indexOf(item);
+          if(pos>=0)sel.splice(pos,1);
+          else{if(sel.length>=(q.maxSelect||1))sel.shift();sel.push(item);}
+          app.querySelectorAll('.opt').forEach(function(el,j){el.classList.toggle('sel',sel.indexOf(q.opts[j])!==-1);});
+          btnNext.disabled=sel.length===0;
         }else{
           ans[q.id]=q.opts[idx];
           app.querySelectorAll('.opt').forEach(function(el,j){el.classList.toggle('sel',j===idx);});
@@ -284,10 +215,7 @@ function renderQ(){
     });
   }else{
     const inp=document.getElementById('inp');
-    inp.addEventListener('input',function(e){
-      ans[q.id]=e.target.value.trim();
-      btnNext.disabled=!String(ans[q.id]).trim();
-    });
+    inp.addEventListener('input',function(e){ans[q.id]=e.target.value.trim();btnNext.disabled=!String(ans[q.id]).trim();});
     setTimeout(function(){inp.focus();},60);
   }
 }
@@ -295,8 +223,7 @@ function renderQ(){
 function prev(){if(qi<=0)return;qi-=1;render();}
 
 function next(){
-  const q=QS[qi];
-  const v=ans[q.id];
+  const q=QS[qi],v=ans[q.id];
   if(q.type==='multi'){if(!Array.isArray(v)||v.length===0)return;}
   else{if(v===undefined||String(v).trim()==='')return;}
   if(q.type==='number'){
@@ -306,52 +233,33 @@ function next(){
   }
   if(qi<QS.length-1){
     qi+=1;
-    const prevSec=(QS[qi-1]&&QS[qi-1].section)||'';
-    const nextSec=(QS[qi]&&QS[qi].section)||'';
+    const prevSec=(QS[qi-1]&&QS[qi-1].section)||'',nextSec=(QS[qi]&&QS[qi].section)||'';
     if(prevSec&&nextSec&&prevSec!==nextSec)pendingSectionIntro=nextSec;
-    render();
-    return;
+    render();return;
   }
   calcResult();
 }
 
-function ageInRange(age,min,max){
-  if(!Number.isFinite(age))return false;
-  return age>=min&&age<=max;
-}
+function ageInRange(age,min,max){return Number.isFinite(age)&&age>=min&&age<=max;}
 
 function calcResult(){
   const age=parseInt(ans['我的年齡'],10);
-
   const passList=GUYS.filter(function(guy){
     if(!ageInRange(age,Number(guy.ageMin),Number(guy.ageMax)))return false;
-
     const keys=Object.keys(guy.answers||{});
     for(let i=0;i<keys.length;i++){
       const k=keys[i];
-
-      // 跳過不參與比對的題目
-      if(SKIP_MATCH_KEYS.indexOf(k)!==-1)continue;
-
       const userAns=ans[k];
       if(userAns===undefined||String(userAns).trim()==='')return false;
-
       const acceptable=(guy.answers[k]||[]).map(normalize);
-
-      // 統一轉成陣列再比對（處理多選題存成字串的情況）
-      let ansArr;
-      if(Array.isArray(userAns)){
-        ansArr=userAns;
-      }else if(typeof userAns==='string'&&userAns.indexOf(',')!==-1){
-        ansArr=userAns.split(',').map(function(s){return s.trim();}).filter(Boolean);
-      }else{
-        ansArr=null;
-      }
-
-      if(ansArr){
-        if(!ansArr.length)return false;
-        const allHit=ansArr.every(function(u){return acceptable.indexOf(normalize(u))!==-1;});
-        if(!allHit)return false;
+      // 統一轉陣列比對（處理多選題）
+      let arr;
+      if(Array.isArray(userAns))arr=userAns;
+      else if(typeof userAns==='string'&&userAns.indexOf(',')!==-1)arr=userAns.split(',').map(function(s){return s.trim();}).filter(Boolean);
+      else arr=null;
+      if(arr){
+        if(!arr.length)return false;
+        if(!arr.every(function(u){return acceptable.indexOf(normalize(u))!==-1;}))return false;
       }else{
         if(acceptable.indexOf(normalize(userAns))===-1)return false;
       }
@@ -361,36 +269,18 @@ function calcResult(){
 
   winner=null;
   for(let i=0;i<PRIORITY.length;i++){
-    const name=PRIORITY[i];
-    const hit=passList.find(function(p){return p.name===name;});
+    const hit=passList.find(function(p){return p.name===PRIORITY[i];});
     if(hit){winner=hit;break;}
   }
   if(!winner&&passList.length)winner=passList[0];
-
-  done=true;
-  renderResult();
-  saveSheets(winner);
+  done=true;renderResult();saveSheets(winner);
 }
 
 function renderResult(){
   if(winner){
-    app.innerHTML=
-      '<div class="rcard">'+
-        '<div class="rbadge">✦ 你的緣分對象 ✦</div>'+
-        '<div class="rlabel">你最適合的對象是</div>'+
-        '<div class="rname">'+esc(winner.emoji||'💕')+' '+esc(winner.name)+'</div>'+
-        '<div class="rprivate">🐧 想知道更多？請私訊企鵝哥哥</div>'+
-      '</div>'+
-      '<button class="brst" onclick="restart()">再測一次</button>'+
-      '<div class="saving" id="sm"></div>';
+    app.innerHTML='<div class="rcard"><div class="rbadge">✦ 你的緣分對象 ✦</div><div class="rlabel">你最適合的對象是</div><div class="rname">'+esc(winner.emoji||'💕')+' '+esc(winner.name)+'</div><div class="rprivate">🐧 想知道更多？請私訊企鵝哥哥</div></div><button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
   }else{
-    app.innerHTML=
-      '<div class="nmcard">'+
-        '<h2>目前沒有符合的對象</h2>'+
-        '<p>先別灰心，緣分正在路上 💕</p>'+
-      '</div>'+
-      '<button class="brst" onclick="restart()">再測一次</button>'+
-      '<div class="saving" id="sm"></div>';
+    app.innerHTML='<div class="nmcard"><h2>目前沒有符合的對象</h2><p>先別灰心，緣分正在路上 💕</p></div><button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
   }
 }
 
@@ -401,20 +291,11 @@ function restart(){
 }
 
 function saveSheets(win){
-  const payload=JSON.stringify({
-    timestamp:new Date().toISOString(),
-    answers:Object.assign({},ans),
-    questions:QS,
-    recommended:win?win.name:'無'
-  });
+  const payload=JSON.stringify({timestamp:new Date().toISOString(),answers:Object.assign({},ans),questions:QS,recommended:win?win.name:'無'});
   const sm=document.getElementById('sm');
   const ok=function(){if(sm){sm.textContent='✓ 已儲存';sm.className='saving ok';}};
   const err=function(){if(sm){sm.textContent='⚠ 儲存失敗';sm.className='saving err';}};
-  if(navigator.sendBeacon){
-    const success=navigator.sendBeacon(SCRIPT_URL,new Blob([payload],{type:'text/plain'}));
-    success?ok():err();
-    return;
-  }
+  if(navigator.sendBeacon){const s=navigator.sendBeacon(SCRIPT_URL,new Blob([payload],{type:'text/plain'}));s?ok():err();return;}
   fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:payload}).then(ok).catch(err);
 }
 
