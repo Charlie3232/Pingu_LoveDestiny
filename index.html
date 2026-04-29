@@ -197,11 +197,11 @@ function renderQ(){
   if(btnPrev)btnPrev.onclick=prev;
   btnNext.onclick=next;
 
-  if(q.type==='single'||q.type==='multi'){
+  if(q.type==='single'||q.type==='multi'||isSecondSection){
     app.querySelectorAll('.opt').forEach(function(btn){
       btn.onclick=function(){
         const idx=Number(btn.getAttribute('data-i'));
-        if(q.type==='multi'){
+        if(isMulti){
           if(!Array.isArray(ans[q.id]))ans[q.id]=[];
           const sel=ans[q.id],item=q.opts[idx],pos=sel.indexOf(item);
           if(pos>=0)sel.splice(pos,1);
@@ -230,7 +230,9 @@ function prev(){if(qi<=0)return;qi-=1;render();}
 
 function next(){
   const q=QS[qi],v=ans[q.id];
-  if(q.type==='multi'){if(!Array.isArray(v)||v.length===0)return;}
+  const _sec=q.section||'關於我';
+  const _isMulti=q.type==='multi'||_sec==='關於你喜歡的男生';
+  if(_isMulti){if(!Array.isArray(v)||v.length===0)return;}
   else{if(v===undefined||String(v).trim()==='')return;}
   if(q.type==='number'){
     const age=parseInt(v,10);
