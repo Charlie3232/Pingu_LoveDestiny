@@ -12,7 +12,7 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .bbg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
 .fb{position:absolute;border-radius:50%;animation:floatUp linear infinite;opacity:0;}
 @keyframes floatUp{0%{transform:translateY(0) translateX(0) scale(1);opacity:0;}10%{opacity:.55;}50%{transform:translateY(-45vh) translateX(var(--drift)) scale(1.05);}90%{opacity:.25;}100%{transform:translateY(-100vh) translateX(var(--drift)) scale(.7);opacity:0;}}
-.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:1.5rem 1rem 5rem;}
+.wrap{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:1.5rem 1rem 9rem;}
 .header{text-align:center;margin-bottom:1.4rem;}
 .pingu-wrap{position:relative;width:100px;height:100px;margin:0 auto .8rem;}
 .pingu-svg{width:100px;height:100px;animation:wobble 3s ease-in-out infinite;filter:drop-shadow(0 6px 14px rgba(212,165,160,.4));}
@@ -62,6 +62,8 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .tinp{width:100%;padding:.85rem 1rem;border:2px solid var(--pink3);border-radius:14px;background:var(--bg);font-size:1rem;font-weight:700;color:var(--text);outline:none;transition:border-color .15s;text-align:center;}
 .tinp:focus{border-color:var(--blush);background:var(--card);}
 .nav{display:flex;gap:.65rem;}
+.nav-bar{position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--bg);border-top:1.5px solid var(--pink3);padding:.75rem 1rem;}
+.nav-bar-inner{display:flex;gap:.65rem;width:100%;max-width:480px;margin:0 auto;}
 .btn{flex:1;padding:.85rem;border-radius:14px;border:none;font-size:.95rem;font-weight:800;cursor:pointer;touch-action:manipulation;}
 .bprev{background:var(--card);border:2px solid var(--pink3);color:var(--muted);}
 .bnext{background:linear-gradient(135deg,var(--blush),var(--blush2));color:white;box-shadow:0 4px 16px rgba(201,147,140,.4);}
@@ -81,6 +83,23 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .brst{width:100%;padding:.9rem;border-radius:14px;border:2px solid var(--blush);background:transparent;color:var(--blush);font-size:.95rem;font-weight:800;cursor:pointer;margin-top:1rem;}
 .saving{text-align:center;font-size:.76rem;font-weight:700;color:var(--muted);margin-top:.6rem;min-height:1.1rem;}
 .saving.ok{color:var(--green);}.saving.err{color:#c07070;}
+.match-card{background:var(--card);border:2px solid var(--pink3);border-radius:22px;overflow:hidden;box-shadow:0 6px 24px var(--shadow);margin-bottom:1rem;animation:resultPop .6s ease both;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+.match-card:hover{transform:translateY(-2px);box-shadow:0 10px 32px var(--shadow);}
+.match-photo{width:100%;height:200px;object-fit:cover;display:block;background:var(--pink3);}
+.match-photo-placeholder{width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fde8e4,#f5e0db);font-size:4rem;}
+.match-info{padding:1rem 1.2rem;}
+.match-name{font-size:1.3rem;font-weight:900;color:var(--blush);margin-bottom:.25rem;}
+.match-hint{font-size:.8rem;color:var(--muted);font-weight:600;}
+.match-arrow{float:right;color:var(--blush);font-size:1.1rem;margin-top:2px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(90,61,56,0.55);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-sheet{background:var(--card);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;padding:1.5rem 1.5rem 2.5rem;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-photo{width:100%;max-height:300px;object-fit:cover;border-radius:16px;margin-bottom:1rem;display:block;}
+.modal-photo-placeholder{width:100%;height:200px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#fde8e4,#f5e0db);border-radius:16px;font-size:5rem;margin-bottom:1rem;}
+.modal-name{font-size:1.6rem;font-weight:900;color:var(--blush);margin-bottom:.3rem;}
+.modal-intro{font-size:.9rem;color:var(--text);line-height:1.8;margin-bottom:1rem;white-space:pre-wrap;}
+.modal-close{width:100%;padding:.85rem;border-radius:14px;border:2px solid var(--pink3);background:transparent;color:var(--muted);font-size:.95rem;font-weight:800;cursor:pointer;margin-top:.5rem;}
 </style>
 </head>
 <body>
@@ -93,8 +112,6 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
         <circle cx="60" cy="52" r="32" fill="#1a1a1a"/><ellipse cx="60" cy="56" rx="20" ry="18" fill="#f5f0e8"/>
         <circle cx="52" cy="48" r="9" fill="white"/><circle cx="52" cy="48" r="6" fill="#1a1a1a"/><circle cx="54" cy="46" r="2.5" fill="white"/>
         <circle cx="68" cy="48" r="9" fill="white"/><circle cx="68" cy="48" r="6" fill="#1a1a1a"/><circle cx="70" cy="46" r="2.5" fill="white"/>
-        <ellipse cx="60" cy="63" rx="11" ry="9" fill="#d44444"/><ellipse cx="60" cy="60" rx="8" ry="5" fill="#e86666"/>
-        <path d="M51 63 Q60 69 69 63" fill="none" stroke="#b03030" stroke-width="1.5" stroke-linecap="round"/>
         <ellipse cx="26" cy="100" rx="10" ry="22" fill="#1a1a1a" transform="rotate(-15 26 100)"/>
         <ellipse cx="94" cy="100" rx="10" ry="22" fill="#1a1a1a" transform="rotate(15 94 100)"/>
         <ellipse cx="48" cy="134" rx="12" ry="6" fill="#d4a030" transform="rotate(-10 48 134)"/>
@@ -109,14 +126,19 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
   </div>
   <div id="app"></div>
 </div>
+<div class="nav-bar" id="navBar" style="display:none">
+  <div class="nav-bar-inner" id="navInner"></div>
+</div>
 <script>
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwHjm-5FUk5fWwTLlxbDy78weYSmIVPmiou4W_l-XdizniaIT2R1mD9IiKCUMl_RTsmDg/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbwHtHJP-H4UHe2LqjntcR9B6xpU1PCwo9ezsgTaINFAOwd92LJ91DsdemsvFDcGsSJggA/exec';
 const PRIORITY=['韓系小奶狗','潛力校草理工男','油頭精壯凹豆男'];
 
 let QS=[],GUYS=[],qi=0;
 const ans={};
 let done=false,winner=null,started=false,pendingSectionIntro='';
 const app=document.getElementById('app');
+const navBar=document.getElementById('navBar');
+const navInner=document.getElementById('navInner');
 
 (function(){
   const bg=document.getElementById('bbg');
@@ -132,8 +154,8 @@ const app=document.getElementById('app');
 
 function esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function normalize(v){return String(v==null?'':v).replace(/[\s\u3000]/g,'').toLowerCase();}
-function showLoading(){app.innerHTML='<div class="loading"><div class="spin"></div><p>正在載入題目中…</p></div>';}
-function showError(msg){app.innerHTML='<div class="err-card"><p>😟 '+esc(msg)+'</p><button class="btn-retry" onclick="boot()">重新載入</button></div>';}
+function showLoading(){navBar.style.display='none';app.innerHTML='<div class="loading"><div class="spin"></div><p>正在載入題目中…</p></div>';}
+function showError(msg){navBar.style.display='none';app.innerHTML='<div class="err-card"><p>😟 '+esc(msg)+'</p><button class="btn-retry" onclick="boot()">重新載入</button></div>';}
 
 function boot(){
   showLoading();
@@ -146,7 +168,8 @@ function boot(){
     if(!data||data.error){showError(data&&data.error?data.error:'讀取資料失敗');return;}
     GUYS=Array.isArray(data.guys)?data.guys:[];
     QS=Array.isArray(data.questions)?data.questions:[];
-    if(!QS.length||QS.length<=2){showError('題目載入異常');return;}
+    console.log('girls boot: guys=',GUYS.length,'questions=',QS.length,QS.map(function(q){return q.id;}));
+    if(!QS.length||QS.length<=2){showError('題目載入異常，收到'+QS.length+'題');return;}
     render();
   };
   tag.onerror=function(){if(loaded)return;loaded=true;clearTimeout(timeout);cleanup();showError('無法連到 Apps Script');};
@@ -162,11 +185,13 @@ function render(){
 }
 
 function renderIntro(){
+  navBar.style.display='none';
   app.innerHTML='<div class="intro"><div class="intro-title">開始前先看看題目分欄 ✨</div><div class="intro-grid"><div class="intro-card"><div class="k">關於我</div><div class="d">前半段會了解你的基本特質與習慣。</div></div><div class="intro-card"><div class="k">關於你喜歡的男生</div><div class="d">後半段會了解你對理想對象的偏好。</div></div></div><button class="btn bnext start-cta" id="startBtn" style="width:100%">開始作答</button></div>';
   document.getElementById('startBtn').onclick=function(){started=true;render();};
 }
 
 function renderSectionIntro(section){
+  navBar.style.display='none';
   const msg=section==='關於你喜歡的男生'?'接下來會進入你對理想對象偏好的題目。':'接下來先了解你的個人特質與習慣。';
   app.innerHTML='<div class="intro"><div class="intro-title">下一段：'+esc(section)+'</div><div class="intro-card"><div class="d">'+esc(msg)+'</div></div><button class="btn bnext start-cta" id="sectionBtn" style="width:100%;margin-top:.85rem">繼續作答</button></div>';
   document.getElementById('sectionBtn').onclick=function(){pendingSectionIntro='';render();};
@@ -198,9 +223,12 @@ function renderQ(){
 
   app.innerHTML=
     '<div class="prog"><div class="prog-meta"><span>第 '+(qi+1)+' 題 / 共 '+QS.length+' 題</span><span>'+(q.scorable?'⭐ 計分':'🌸 基本資料')+'</span></div><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%"></div></div></div>'+
-    '<div class="qcard"><div class="qsec">✦ '+esc(section)+'</div><span class="qnum">Q'+String(qi+1).padStart(2,'0')+'</span><div class="qtxt">'+esc(q.label)+'</div>'+body+'</div>'+
-    '<div class="nav">'+(qi>0?'<button class="btn bprev" id="btnPrev">← 上一題</button>':'<div></div>')+
-    '<button class="btn bnext" id="btnNext" '+(hasAns?'':'disabled')+'>'+(isLast?'查看結果':'下一題 →')+'</button></div>';
+    '<div class="qcard"><div class="qsec">✦ '+esc(section)+'</div><span class="qnum">Q'+String(qi+1).padStart(2,'0')+'</span><div class="qtxt">'+esc(q.label)+'</div>'+body+'</div>';
+
+  navBar.style.display='block';
+  navInner.innerHTML=
+    (qi>0?'<button class="btn bprev" id="btnPrev">← 上一題</button>':'')+
+    '<button class="btn bnext" id="btnNext" '+(hasAns?'':'disabled')+'>'+(isLast?'查看結果':'下一題 →')+'</button>';
 
   const btnPrev=document.getElementById('btnPrev'),btnNext=document.getElementById('btnNext');
   if(btnPrev)btnPrev.onclick=prev;
@@ -215,7 +243,6 @@ function renderQ(){
           const sel=ans[q.id],item=q.opts[idx],pos=sel.indexOf(item);
           if(pos>=0)sel.splice(pos,1);
           else{
-            // 第二部分不限制上限，第一部分才限制 maxSelect
             if(!isSecondSection&&sel.length>=(q.maxSelect||1))sel.shift();
             sel.push(item);
           }
@@ -230,7 +257,10 @@ function renderQ(){
     });
   }else{
     const inp=document.getElementById('inp');
-    inp.addEventListener('input',function(e){ans[q.id]=e.target.value.trim();btnNext.disabled=!String(ans[q.id]).trim();});
+    inp.addEventListener('input',function(e){
+      ans[q.id]=e.target.value.trim();
+      btnNext.disabled=!String(ans[q.id]).trim();
+    });
     setTimeout(function(){inp.focus();},60);
   }
 }
@@ -269,31 +299,26 @@ function calcResult(){
       const userAns=ans[k];
       if(userAns===undefined||String(userAns).trim()==='')return false;
       const acceptable=(guy.answers[k]||[]).map(normalize);
-      // 統一轉陣列
       let arr;
       if(Array.isArray(userAns))arr=userAns;
       else if(typeof userAns==='string'&&userAns.indexOf(',')!==-1)arr=userAns.split(',').map(function(s){return s.trim();}).filter(Boolean);
       else arr=null;
       if(arr){
         if(!arr.length)return false;
-        // 不管哪個部分：只要有任意一個符合就 OK
         const anyHit=arr.some(function(u){return acceptable.indexOf(normalize(u))!==-1;});
         if(!anyHit)return false;
       }else{
-        // 單選：直接比對
         if(acceptable.indexOf(normalize(userAns))===-1)return false;
       }
     }
     return true;
   });
 
-  // 依 PRIORITY 排序符合的對象
   const ordered=[];
   PRIORITY.forEach(function(name){
     const hit=passList.find(function(p){return p.name===name;});
     if(hit)ordered.push(hit);
   });
-  // 不在 PRIORITY 的也補上
   passList.forEach(function(p){
     if(!PRIORITY.includes(p.name))ordered.push(p);
   });
@@ -302,24 +327,62 @@ function calcResult(){
 }
 
 function renderResult(matches){
+  navBar.style.display='none';
   matches=matches||[];
   if(matches.length){
-    const title=matches.length===1
-      ?'✦ 你的緣分對象 ✦'
-      :'✦ 你有 '+matches.length+' 個符合的對象 ✦';
+    const title=matches.length===1?'✦ 你的緣分對象 ✦':'✦ 你有 '+matches.length+' 個符合的對象 ✦';
     const cards=matches.map(function(m,i){
-      return '<div class="rcard" style="animation-delay:'+(i*0.15)+'s">'+
-        '<div class="rbadge">'+esc(title)+'</div>'+
-        (matches.length>1?'<div class="rlabel">符合對象 '+(i+1)+' / '+matches.length+'</div>':
-         '<div class="rlabel">你最適合的對象是</div>')+
-        '<div class="rname">'+esc(m.emoji||'💕')+' '+esc(m.name)+'</div>'+
-        '<div class="rprivate">🐧 想知道更多？請私訊企鵝哥哥</div>'+
+      const photoHtml=m.photo
+        ?'<img class="match-photo" id="mphoto'+i+'" src="'+esc(m.photo)+'">'+'<div class="match-photo-placeholder" id="mpholder'+i+'" style="display:none">'+esc(m.emoji||'💕')+'</div>'
+        :'<div class="match-photo-placeholder">'+esc(m.emoji||'💕')+'</div>';
+      return '<div class="match-card" style="animation-delay:'+(i*0.15)+'s" data-midx="'+i+'">'+
+        photoHtml+
+        '<div class="match-info">'+
+          '<span class="match-arrow">→</span>'+
+          '<div class="match-name">'+esc(m.name)+'</div>'+
+          '<div class="match-hint">點擊查看詳細介紹</div>'+
+        '</div>'+
       '</div>';
     }).join('');
-    app.innerHTML=cards+'<button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
+    app.innerHTML=
+      '<div style="text-align:center;font-size:.8rem;font-weight:800;color:var(--blush);letter-spacing:.1em;margin-bottom:1rem;padding:.5rem 1rem;background:var(--pink3);border-radius:99px;display:inline-block">'+esc(title)+'</div>'+
+      cards+
+      '<button class="brst" onclick="restart()">再測一次</button>'+
+      '<div class="saving" id="sm"></div>';
+    matches.forEach(function(m,i){
+      const img=document.getElementById('mphoto'+i);
+      const holder=document.getElementById('mpholder'+i);
+      if(img&&holder){img.onerror=function(){img.style.display='none';holder.style.display='flex';};}
+    });
+    app.querySelectorAll('.match-card').forEach(function(card){
+      card.onclick=function(){showModal(Number(card.getAttribute('data-midx')));};
+    });
+    window._matches=matches;
   }else{
-    app.innerHTML='<div class="nmcard"><h2>目前沒有符合的對象</h2><p>先別灰心，緣分正在路上 💕</p></div><button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
+    app.innerHTML='<div class="nmcard"><h2>目前沒有符合的對象</h2><p>別灰心，緣分還在路上！</p><button class="brst" onclick="restart()">再測一次</button></div>';
   }
+}
+
+function showModal(idx){
+  const m=window._matches[idx];if(!m)return;
+  const photoHtml=m.photo
+    ?'<img class="modal-photo" id="modalImg" src="'+esc(m.photo)+'">'+'<div class="modal-photo-placeholder" id="modalHolder" style="display:none">'+esc(m.emoji||'💕')+'</div>'
+    :'<div class="modal-photo-placeholder">'+esc(m.emoji||'💕')+'</div>';
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.innerHTML=
+    '<div class="modal-sheet">'+
+      photoHtml+
+      '<div class="modal-name">'+esc(m.emoji||'💕')+' '+esc(m.name)+'</div>'+
+      (m.intro?'<div class="modal-intro">'+esc(m.intro)+'</div>':'<div class="modal-intro" style="color:var(--muted)">暫無介紹</div>')+
+      '<div class="rprivate" style="justify-content:center">🐧 想認識他？私訊企鵝哥哥</div>'+
+      '<button class="modal-close" id="modalCloseBtn">關閉</button>'+
+    '</div>';
+  overlay.onclick=function(e){if(e.target===overlay)overlay.remove();};
+  document.body.appendChild(overlay);
+  document.getElementById('modalCloseBtn').onclick=function(){overlay.remove();};
+  const mImg=document.getElementById('modalImg'),mHolder=document.getElementById('modalHolder');
+  if(mImg&&mHolder){mImg.onerror=function(){mImg.style.display='none';mHolder.style.display='flex';};}
 }
 
 function restart(){
