@@ -50,10 +50,15 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .opt.multi .rdot{border-radius:6px;}
 .opt.multi.sel .rdot::after{content:'✓';font-size:11px;font-weight:800;color:white;width:auto;height:auto;border-radius:0;background:transparent;}
 .multi-hint{font-size:.72rem;color:var(--muted);font-weight:700;margin-bottom:.6rem;display:block;}
-.multi-hint-big{display:flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#fff5f3,#fde8e4);border:1.5px solid var(--blush);border-radius:12px;padding:.55rem .9rem;margin-bottom:.85rem;animation:hintPulse 2s ease-in-out infinite;}
-@keyframes hintPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,147,140,0);}50%{transform:scale(1.03);box-shadow:0 0 0 5px rgba(201,147,140,0.18);}}
-.multi-hint-big .hint-icon{font-size:1.1rem;flex-shrink:0;}
-.multi-hint-big .hint-txt{font-size:.82rem;font-weight:800;color:var(--blush);line-height:1.4;}
+.multi-hint-big{display:flex;align-items:center;gap:.6rem;border-radius:14px;padding:.7rem 1rem;margin-bottom:.9rem;animation:hintPulse 2.2s ease-in-out infinite;border:2px solid transparent;}
+@keyframes hintPulse{
+  0%{background:linear-gradient(135deg,#fde8e4,#fbd5cf);border-color:#c9938c;box-shadow:0 2px 12px rgba(201,147,140,0.25);}
+  33%{background:linear-gradient(135deg,#fce4f0,#f9c8e0);border-color:#d4789a;box-shadow:0 2px 16px rgba(212,120,154,0.3);}
+  66%{background:linear-gradient(135deg,#fde8c8,#fbd5a0);border-color:#d4a030;box-shadow:0 2px 16px rgba(212,160,48,0.25);}
+  100%{background:linear-gradient(135deg,#fde8e4,#fbd5cf);border-color:#c9938c;box-shadow:0 2px 12px rgba(201,147,140,0.25);}}
+.multi-hint-big .hint-icon{font-size:1.3rem;flex-shrink:0;animation:iconBounce 2.2s ease-in-out infinite;}
+@keyframes iconBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-3px);}}
+.multi-hint-big .hint-txt{font-size:.88rem;font-weight:800;color:var(--text);line-height:1.45;}
 .tinp{width:100%;padding:.85rem 1rem;border:2px solid var(--pink3);border-radius:14px;background:var(--bg);font-size:1rem;font-weight:700;color:var(--text);outline:none;transition:border-color .15s;text-align:center;}
 .tinp:focus{border-color:var(--blush);background:var(--card);}
 .nav{display:flex;gap:.65rem;}
@@ -282,18 +287,36 @@ function calcResult(){
     return true;
   });
 
-  winner=null;
-  for(let i=0;i<PRIORITY.length;i++){
-    const hit=passList.find(function(p){return p.name===PRIORITY[i];});
-    if(hit){winner=hit;break;}
-  }
-  if(!winner&&passList.length)winner=passList[0];
-  done=true;renderResult();saveSheets(winner);
+  // 依 PRIORITY 排序符合的對象
+  const ordered=[];
+  PRIORITY.forEach(function(name){
+    const hit=passList.find(function(p){return p.name===name;});
+    if(hit)ordered.push(hit);
+  });
+  // 不在 PRIORITY 的也補上
+  passList.forEach(function(p){
+    if(!PRIORITY.includes(p.name))ordered.push(p);
+  });
+  winner=ordered.length?ordered[0]:null;
+  done=true;renderResult(ordered);saveSheets(ordered);
 }
 
-function renderResult(){
-  if(winner){
-    app.innerHTML='<div class="rcard"><div class="rbadge">✦ 你的緣分對象 ✦</div><div class="rlabel">你最適合的對象是</div><div class="rname">'+esc(winner.emoji||'💕')+' '+esc(winner.name)+'</div><div class="rprivate">🐧 想知道更多？請私訊企鵝哥哥</div></div><button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
+function renderResult(matches){
+  matches=matches||[];
+  if(matches.length){
+    const title=matches.length===1
+      ?'✦ 你的緣分對象 ✦'
+      :'✦ 你有 '+matches.length+' 個符合的對象 ✦';
+    const cards=matches.map(function(m,i){
+      return '<div class="rcard" style="animation-delay:'+(i*0.15)+'s">'+
+        '<div class="rbadge">'+esc(title)+'</div>'+
+        (matches.length>1?'<div class="rlabel">符合對象 '+(i+1)+' / '+matches.length+'</div>':
+         '<div class="rlabel">你最適合的對象是</div>')+
+        '<div class="rname">'+esc(m.emoji||'💕')+' '+esc(m.name)+'</div>'+
+        '<div class="rprivate">🐧 想知道更多？請私訊企鵝哥哥</div>'+
+      '</div>';
+    }).join('');
+    app.innerHTML=cards+'<button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
   }else{
     app.innerHTML='<div class="nmcard"><h2>目前沒有符合的對象</h2><p>先別灰心，緣分正在路上 💕</p></div><button class="brst" onclick="restart()">再測一次</button><div class="saving" id="sm"></div>';
   }
@@ -305,8 +328,9 @@ function restart(){
   window.scrollTo(0,0);render();
 }
 
-function saveSheets(win){
-  const payload=JSON.stringify({timestamp:new Date().toISOString(),answers:Object.assign({},ans),questions:QS,recommended:win?win.name:'無'});
+function saveSheets(matches){
+  const names=Array.isArray(matches)&&matches.length?matches.map(function(m){return m.name;}).join(', '):'無';
+  const payload=JSON.stringify({timestamp:new Date().toISOString(),answers:Object.assign({},ans),questions:QS,recommended:names});
   const sm=document.getElementById('sm');
   const ok=function(){if(sm){sm.textContent='✓ 已儲存';sm.className='saving ok';}};
   const err=function(){if(sm){sm.textContent='⚠ 儲存失敗';sm.className='saving err';}};
