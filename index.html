@@ -50,6 +50,10 @@ body{font-family:'Nunito','Noto Sans TC',sans-serif;background:var(--bg);color:v
 .opt.multi .rdot{border-radius:6px;}
 .opt.multi.sel .rdot::after{content:'✓';font-size:11px;font-weight:800;color:white;width:auto;height:auto;border-radius:0;background:transparent;}
 .multi-hint{font-size:.72rem;color:var(--muted);font-weight:700;margin-bottom:.6rem;display:block;}
+.multi-hint-big{display:flex;align-items:center;gap:.5rem;background:linear-gradient(135deg,#fff5f3,#fde8e4);border:1.5px solid var(--blush);border-radius:12px;padding:.55rem .9rem;margin-bottom:.85rem;animation:hintPulse 2s ease-in-out infinite;}
+@keyframes hintPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 0 rgba(201,147,140,0);}50%{transform:scale(1.03);box-shadow:0 0 0 5px rgba(201,147,140,0.18);}}
+.multi-hint-big .hint-icon{font-size:1.1rem;flex-shrink:0;}
+.multi-hint-big .hint-txt{font-size:.82rem;font-weight:800;color:var(--blush);line-height:1.4;}
 .tinp{width:100%;padding:.85rem 1rem;border:2px solid var(--pink3);border-radius:14px;background:var(--bg);font-size:1rem;font-weight:700;color:var(--text);outline:none;transition:border-color .15s;text-align:center;}
 .tinp:focus{border-color:var(--blush);background:var(--card);}
 .nav{display:flex;gap:.65rem;}
@@ -179,7 +183,7 @@ function renderQ(){
   }else if(q.type==='text'){
     body='<input class="tinp" type="text" id="inp" maxlength="20" value="'+esc(val)+'" placeholder="輸入你的暱稱"/>';
   }else{
-    body=(isSecondSection?'<span class="multi-hint">✓ 可複選多個，選你能接受的都選上</span>':
+    body=(isSecondSection?'<div class="multi-hint-big"><span class="hint-icon">💕</span><span class="hint-txt">可複選多個！把你能接受的都選上吧 ✨</span></div>':
           isMulti?'<span class="multi-hint">請選擇最多 '+(q.maxSelect||1)+' 個</span>':'')+
       '<div class="opts">'+(q.opts||[]).map(function(o,i){
         const sel=isMulti?val.indexOf(o)!==-1:val===o;
