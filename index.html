@@ -167,11 +167,11 @@ function renderQ(){
   const q=QS[qi];
   const pct=Math.round((qi/QS.length)*100);
   const isLast=qi===QS.length-1;
+  const section=q.section||'關於我';
   const isSecondSection=section==='關於你喜歡的男生';
   const isMulti=q.type==='multi'||isSecondSection;
   const val=ans[q.id]||(isMulti?[]:'');
   const hasAns=isMulti?Array.isArray(val)&&val.length>0:String(val).trim()!=='';
-  const section=q.section||'關於我';
 
   let body='';
   if(q.type==='number'){
